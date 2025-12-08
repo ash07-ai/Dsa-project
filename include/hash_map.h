@@ -17,11 +17,14 @@ private:
     void rehash();
 
 public:
+<<<<<<< HEAD
     HashMap()
     {
 
     }
 
+=======
+>>>>>>> 63cdf17b66d77fcf3146468ad2e073ef6e5f4d8f
     HashMap(int size);
     void insert(const char* key);
     bool search(const char* key);
