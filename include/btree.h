@@ -18,15 +18,9 @@ private:
 
     void insertNonFull(BTreeNode* node, int key);
     void splitChild(BTreeNode* node, int index, BTreeNode* child);
-<<<<<<< HEAD
 public:
     BTree();
     BTreeNode* getRoot() { return root; }
-=======
-
-public:
-    BTree();
->>>>>>> 63cdf17b66d77fcf3146468ad2e073ef6e5f4d8f
     void insert(int key);
     bool search(int key);
 };

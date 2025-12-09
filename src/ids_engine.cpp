@@ -1,43 +1,92 @@
-#include"ids_engine.h"
-#include<string>
-#include"hash_map.h"
+#include "ids_engine.h"
+#include "utils.h"
+#include <cmath>
+#include <iostream>
 using namespace std;
 
-void IDS::init() {
-    // Initialization code for IDS
+void IDS::init()
+{
+    blacklist.loadFromFile("data/blacklist.txt");
+    cout << "✅ IDS Engine Initialized" << endl;
 }
 
-void IDS::processPacket(Packet p) {
-    if (detectBlacklist(p)) {
-        logger.logEvent(1); // Log blacklist detection
+void IDS::processPacket(Packet p)
+{
+    cout << "\n--- Processing Packet from " << p.sourceIP << " ---" << endl;
+
+    bool flag1 = detectBlacklist(p);
+    bool flag2 = detectPortScan(p);
+    bool flag3 = detectAnomaly(p);
+
+    if (!flag1 && !flag2 && !flag3)
+    {
+        cout << "✅ Packet is CLEAN" << endl;
     }
-    if (detectPortScan(p)) {
-        logger.logEvent(2); // Log port scan detection
-    }
-    if (detectAnomaly(p)) {
-        logger.logEvent(3); // Log anomaly detection 
-    }
+
+    int eventCode = generateEventCode(p.sourceIP, p.port);
+    logger.logEvent(eventCode);
 }
 
-bool IDS::detectBlacklist(Packet p) {
-    return blacklist.isBlacklisted(p.sourceIP);
-}
-
-
-
-bool IDS::detectPortScan(Packet p) {
-    static HashMap portMap; // to track ports per source ip
-    std::string key = std::string(p.sourceIP) + ":" + std::to_string(p.port);
-    // Port scan detected
-    if (portMap.search(key.c_str())) {
-        return true; 
-    } else {
-        portMap.insert(key.c_str());
-        return false;
+// ✅ FIXED: Use p.sourceIP
+bool IDS::detectBlacklist(Packet p)
+{
+    if (blacklist.isBlacklisted(p.sourceIP))
+    {
+        cout << "🚨 ALERT: Blacklisted IP detected!" << endl;
+        logger.logEvent(90001);
+        return true;
     }
+    return false;
 }
 
-bool IDS::detectAnomaly(Packet p) {
-    // Simple anomaly detection based on packet size
-    return p.packetSize > 1500; 
+// ✅ FIXED: Use ipToHash() instead of %
+bool IDS::detectPortScan(Packet p)
+{
+    static int portCount[1000] = {0};
+    static long lastTime[1000] = {0};
+
+    int idx = ipToHash(p.sourceIP) % 1000;
+
+    if (p.timestamp - lastTime[idx] > 5)
+    {
+        portCount[idx] = 0;
+    }
+
+    portCount[idx]++;
+    lastTime[idx] = p.timestamp;
+
+    if (portCount[idx] > 5)  // 5+ ports = scan
+    {
+        cout << "🚨 ALERT: Port scan detected!" << endl;
+        logger.logEvent(70001);
+        return true;
+    }
+
+    return false;
+}
+
+
+bool IDS::detectAnomaly(Packet p)
+{
+    static double mean = 500.0;
+    static double variance = 10000.0;
+    static int count = 1;
+
+    double deviation = p.packetSize - mean;
+    double stdDev = sqrt(variance);
+
+    if (abs(deviation) > 3 * stdDev)
+    {
+        cout << "🚨 ALERT: Anomaly detected (size=" << p.packetSize << ")" << endl;
+        logger.logEvent(80001);
+        return true;
+    }
+
+    // Update stats
+    double oldMean = mean;
+    mean = mean + (p.packetSize - mean) / count;
+    variance = variance + (p.packetSize - oldMean) * (p.packetSize - mean);
+    count++;
+
+    return false;
 }

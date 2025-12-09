@@ -8,7 +8,7 @@ struct HashNode {
 
 class HashMap {
 private:
-    HashNode** table;
+    HashNode** table;   // Array of 
     int capacity;
     int count; // Tracks the number of elements
     const int REHASH_THRESHOLD = 5; //  desired factor
@@ -17,14 +17,11 @@ private:
     void rehash();
 
 public:
-<<<<<<< HEAD
     HashMap()
     {
 
     }
 
-=======
->>>>>>> 63cdf17b66d77fcf3146468ad2e073ef6e5f4d8f
     HashMap(int size);
     void insert(const char* key);
     bool search(const char* key);

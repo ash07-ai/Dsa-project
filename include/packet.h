@@ -7,6 +7,7 @@ struct Packet {
     int port;
     int packetSize;
     char payload[256];
+    long timestamp; 
 };
 
 Packet parsePacket(const char* Line);

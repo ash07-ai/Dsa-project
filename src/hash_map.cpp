@@ -36,6 +36,7 @@ bool HashMap::search(const char* key)
         current = current->next;
     
     }
+    return false;
 }
 
 void HashMap::insert(const char* key) 

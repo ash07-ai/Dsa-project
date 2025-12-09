@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #include "logger.h"
 #include <fstream>
 #include"btree.h"
@@ -33,11 +32,3 @@ void Logger::inorderSave(BTreeNode* node, std::ofstream &file)
 
     inorderSave(node->child[node->count], file); // last child
 }
-=======
-#include"logger.h"
-void Logger::logEvent(int eventCode)
-{
-    
-
-}
->>>>>>> 63cdf17b66d77fcf3146468ad2e073ef6e5f4d8f
