@@ -1,4 +1,4 @@
-#include"hash_map.h"
+#include "hash_map.h"
 #include <cstring>
 #include <iostream>
 using namespace std;
@@ -6,7 +6,8 @@ using namespace std;
 HashMap::HashMap(int size) 
 {
     capacity = size;
-    table = new HashNode * [capacity];
+    count = 0;  
+    table = new HashNode*[capacity];
     for (int i = 0; i < capacity; i++) 
     {
         table[i] = nullptr;
@@ -27,6 +28,7 @@ bool HashMap::search(const char* key)
 {
     int index = hashFunction(key);
     HashNode* current = table[index];
+    
     while (current != nullptr)
     {
         if (strcmp(current->key, key) == 0) 
@@ -34,59 +36,96 @@ bool HashMap::search(const char* key)
             return true;
         }
         current = current->next;
-    
+
     }
+
     return false;
+
 }
 
 void HashMap::insert(const char* key) 
 {
-    if (count >= capacity * REHASH_THRESHOLD) 
+    // Check if already exists
+    if (search(key))
     {
+        // Silently ignore duplicates (no need to print)
+        return;
+
+
+    }
+
+    // Check load factor BEFORE inserting
+    double loadFactor = (double)count / capacity;
+    if (loadFactor >= REHASH_THRESHOLD) 
+    {
+        cout << "⚠️  Load factor " << loadFactor 
+             << " exceeded threshold. Rehashing..." << endl;
         rehash();
     }
 
-
-    int index=hashFunction(key);
-    if(search(key))
-    {
-        cout<<"IP "<<key<<" already exists in the HashMap."<<endl;
-        return;
-    }
-
-
+    // Insert the new node
+    int index = hashFunction(key);
     HashNode* newNode = new HashNode();
-    strcpy(newNode->key,key);
+    strcpy(newNode->key, key);
     newNode->next = table[index];
     table[index] = newNode;
     count++;
-    cout<<"Inserted IP "<<key<<" at index "<<index<<endl;
+
+
 }
 
 void HashMap::rehash() 
 {
-    int oldcapacity = capacity;
-    HashNode **oldtable = table;
+    int oldCapacity = capacity;
+    HashNode** oldTable = table;
+    
+    // Double the capacity
     capacity *= 2;
-    table = new HashNode * [capacity];
+    count = 0;  // Reset count (will be recalculated during reinsert)
+    
+    // Create new table
+    table = new HashNode*[capacity];
     for (int i = 0; i < capacity; i++) 
     {
         table[i] = nullptr;
     }
     
-    for(int i=0;i<oldcapacity;i++)
+    // Reinsert all elements
+    for (int i = 0; i < oldCapacity; i++)
     {
-        HashNode *curr=oldtable[i];
-        while(curr!=nullptr)
+        HashNode* current = oldTable[i];
+        while (current != nullptr)
         {
-            HashNode *nextNode=curr->next;
-            int newIndex=hashFunction(curr->key);
-            curr->next=table[newIndex];
-            table[newIndex]=curr;
-            curr=nextNode;
+            HashNode* next = current->next;
+            
+            // Recompute hash with new capacity
+            int newIndex = hashFunction(current->key);
+            
+            // Insert into new table
+            current->next = table[newIndex];
+            table[newIndex] = current;
+            count++;
+            
+            current = next;
         }
     }
-    delete[] oldtable;
-    std::cout << "--- HASH TABLE REHASHED! New Capacity: " << capacity << " ---" << std::endl;
+    
+    delete[] oldTable;
+    cout << "✅ Rehashed! Old capacity: " << oldCapacity 
+         << " → New capacity: " << capacity << endl;
+}
 
+HashMap::~HashMap()
+{
+    for (int i = 0; i < capacity; i++)
+    {
+        HashNode* current = table[i];
+        while (current != nullptr)
+        {
+            HashNode* next = current->next;
+            delete current;
+            current = next;
+        }
+    }
+    delete[] table;
 }

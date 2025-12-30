@@ -9,7 +9,13 @@ struct BTreeNode {
     bool leaf;
     BTreeNode* child[2*T];
 
-    BTreeNode(bool isLeaf);
+    BTreeNode(bool isLeaf)
+    {
+        leaf = isLeaf;
+        count = 0;
+        for (int i = 0; i < 2*T; i++)
+            child[i] = nullptr;
+    }
 };
 
 class BTree {

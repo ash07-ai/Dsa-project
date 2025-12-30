@@ -1,0 +1,13 @@
+SELECT
+UNION
+DROP TABLE
+<script>
+javascript:
+eval(
+../../../
+/etc/passwd
+cmd.exe
+; rm -rf
+| cat
+wget
+curl http

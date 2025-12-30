@@ -1,0 +1,9 @@
+IDS Statistics Report
+=====================
+
+Total Packets: 20
+Clean Packets: 5
+Blacklist Hits: 12
+Port Scans: 1
+Anomalies: 1
+Most Active IP: 192.168.1.32

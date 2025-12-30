@@ -8,7 +8,7 @@ BTree::BTree()
 }
 
 
-void splitChild(BTreeNode* parent, int index, BTreeNode* child) 
+void BTree::splitChild(BTreeNode* parent, int index, BTreeNode* child) 
 {
     BTreeNode* newChild = new BTreeNode(child->leaf);
     newChild->count = T - 1;
@@ -36,7 +36,7 @@ void splitChild(BTreeNode* parent, int index, BTreeNode* child)
     parent->count++;
 }
 
-void insertNonFull(BTreeNode* node, int key) 
+void BTree::insertNonFull(BTreeNode* node, int key) 
 {
     int i = node->count - 1;
 
